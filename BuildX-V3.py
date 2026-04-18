@@ -61,13 +61,13 @@ def is_valid_phone(p):
     return bool(re.match(r"^\+?[0-9]*$", p))
 
 # --- LOGO სექცია ---
-# დარწმუნდი, რომ ფაილი "Screenshot_2026-04-19_at_01.31.05-removebg-preview.png" დევს BuildX-V2 საქაღალდეში
+# დარწმუნდი, რომ ფაილი "Screenshot_2026-04-19_at_01.31.05-removebg-preview.png" დევს BuildX-V3 საქაღალდეში
 col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
 with col_l2:
     try:
-        st.image("Screenshot_2026-04-19_at_01.31.05-removebg-preview.png", use_container_width=True)
+        st.image("BuildX.png", use_container_width=True)
     except:
-        st.error("⚠️ ლოგოს ფაილი ვერ მოიძებნა. დარწმუნდით, რომ ფაილი სწორ საქაღალდეშია.")
+        st.error("🏗️ BuildX")
 
 st.markdown("---")
 
