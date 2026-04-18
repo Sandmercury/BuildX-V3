@@ -4,14 +4,11 @@ import re
 # საიტის კონფიგურაცია
 st.set_page_config(page_title="BuildX | Premium", page_icon="🏗️", layout="centered")
 
-# --- აბსოლუტური კონტროლი ვიზუალზე (ყველა ხვრელის ამოვსება) ---
+# --- აბსოლუტური კონტროლი ვიზუალზე (ჩარჩოების გასწორება) ---
 st.markdown("""
     <style>
-    /* 1. მთლიანი საიტის იძულებითი გათეთრება */
-    html, body, .stApp, [data-testid="stAppViewContainer"] {
-        background-color: #FFFFFF !important;
-        background: #FFFFFF !important;
-    }
+    /* 1. საიტის ფონი */
+    .stApp { background-color: #FFFFFF !important; }
 
     /* 2. ტექსტების სრული გაშავება */
     h1, h2, h3, h4, p, label, span, div, .stMarkdown {
@@ -19,48 +16,42 @@ st.markdown("""
         -webkit-text-fill-color: #000000 !important;
     }
 
-    /* 3. ყველა ველის (Input/Select) ფიქსაცია */
+    /* 3. ყველა ტიპის ველის ჩარჩოს სისქის გათანაბრება (2px) */
+    /* ეს ეხება ტექსტურ ველებს, ნომრებს და სელექტბოქსებს */
     div[data-baseweb="input"], 
     div[data-baseweb="select"], 
-    .stTextInput input, 
-    .stNumberInput input,
-    div[role="combobox"] {
-        background-color: #FFFFFF !important;
-        background: #FFFFFF !important;
-        border: 2px solid #000000 !important;
+    div[data-baseweb="base-input"],
+    .stTextInput div, 
+    .stNumberInput div, 
+    .stSelectbox div {
         border-radius: 10px !important;
-        color: #000000 !important;
-        opacity: 1 !important;
     }
 
-    /* 4. არჩეული ტექსტის ხილვადობა */
+    /* უშუალოდ ჩარჩოს სტილი ყველა კონტეინერისთვის */
+    div[data-baseweb="input"] > div, 
+    div[data-baseweb="select"] > div {
+        border: 2px solid #000000 !important;
+        background-color: #FFFFFF !important;
+    }
+
+    /* ტექსტის ფერი ინპუტებში */
+    input {
+        color: #000000 !important;
+        background-color: #FFFFFF !important;
+    }
+
+    /* არჩეული მნიშვნელობის ხილვადობა (Selectbox-ში) */
     div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
         color: #000000 !important;
-        background-color: #FFFFFF !important;
     }
 
-    /* 5. ჩამოსაშლელი სიის (Dropdown) ფიქსაცია */
-    div[data-baseweb="popover"] {
-        background-color: #FFFFFF !important;
-    }
-    div[data-baseweb="popover"] li {
-        color: #000000 !important;
-        background-color: #FFFFFF !important;
-    }
-    div[data-baseweb="popover"] li:hover {
-        background-color: #F0F2F6 !important;
-    }
-
-    /* 6. Autofill-ის (დამახსოვრებული მონაცემების) გათეთრება */
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover, 
-    input:-webkit-autofill:focus {
+    /* Autofill ფიქსაცია */
+    input:-webkit-autofill {
         -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset !important;
         -webkit-text-fill-color: #000000 !important;
-        transition: background-color 5000s ease-in-out 0s;
     }
 
-    /* 7. ღილაკის სტილი */
+    /* ღილაკის სტილი */
     .stButton > button {
         background: linear-gradient(90deg, #2E86C1 0%, #3498DB 100%) !important;
         color: #FFFFFF !important;
@@ -69,15 +60,6 @@ st.markdown("""
         width: 100% !important;
         height: 50px !important;
         border-radius: 12px !important;
-        box-shadow: 0 4px 15px rgba(46, 134, 193, 0.3) !important;
-    }
-    
-    /* 8. Metric ბლოკის გათეთრება */
-    div[data-testid="stMetric"] {
-        background-color: #F8F9FA !important;
-        border: 1px solid #E2E8F0 !important;
-        border-radius: 15px !important;
-        padding: 15px !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -147,6 +129,7 @@ if full_name and email_ok and phone_ok and location != "არჩიეთ რ�
     st.markdown("---")
 
     if area:
+        # კალკულაციის ლოგიკა
         p_const, p_roof, p_facade, p_comm = 280, 85, 120, 60
         if floors > 1: p_const *= 1.15
         if wall_material == "აგური": p_const += 45
@@ -168,7 +151,6 @@ if full_name and email_ok and phone_ok and location != "არჩიეთ რ�
         st.file_uploader("ატვირთეთ ფაილი (AI Vision ანალიზი)", type=['png', 'jpg', 'pdf'])
         
         if st.button("მონაცემების გაგზავნა 🚀"):
-            st.balloons()
             st.success(f"მადლობა {full_name}, მონაცემები გაგზავნილია!")
     else:
         st.info("💡 შეიყვანეთ ფართობი კალკულაციისთვის.")
