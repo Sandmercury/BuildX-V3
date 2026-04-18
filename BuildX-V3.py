@@ -79,7 +79,7 @@ with c_name:
     full_name = st.text_input("სახელი, გვარი", placeholder="მაგ: ლაშა ჯაკობია")
 
 with c_mail:
-    email = st.text_input("Mail", placeholder="example@mail.com")
+    email = st.text_input("Email", placeholder="example@Email.com")
     if email and not is_valid_email(email):
         st.caption(" :red[გთხოვთ ჩაწერეთ სწორ ფორმატში]")
 
