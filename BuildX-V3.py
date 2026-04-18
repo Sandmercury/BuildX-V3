@@ -1,86 +1,65 @@
 import streamlit as st
-import base64
 
-# საიტის კონფიგურაცია - ნათელი თემა
-st.set_page_config(page_title="BuildX | Construction", page_icon="🏗️", layout="centered")
+# საიტის კონფიგურაცია
+st.set_page_config(page_title="BuildX | Construction Estimator", page_icon="🏗️", layout="centered")
 
-# --- CUSTOM CSS დიზაინისთვის ---
+# --- CUSTOM CSS (თეთრი ფონი და მუქი ტექსტი) ---
 st.markdown("""
     <style>
-    .main {
-        background-color: #f8f9fa;
+    /* მთლიანი საიტის ფონი */
+    .stApp {
+        background-color: #FFFFFF;
     }
-    .stButton>button {
-        background-color: #2e86c1;
-        color: white;
-        border-radius: 8px;
+    /* ყველა ტექსტის ფერი */
+    h1, h2, h3, h4, p, label, .stMarkdown {
+        color: #1A1A1A !important;
     }
-    .stMetric {
-        background-color: #ffffff;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* კალკულატორის ველების ფონი */
+    .stNumberInput input, .stSelectbox div, .stTextInput input {
+        background-color: #F0F2F6 !important;
+        color: #1A1A1A !important;
+    }
+    /* Metric-ის ვიზუალი */
+    [data-testid="stMetricValue"] {
+        color: #2E86C1 !important;
+        font-weight: bold;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- LOGO ---
-# შეცვალე 'logo.png' შენი ფაილის რეალური სახელით
-try:
-    st.image("logo.png", width=250)
-except:
-    st.title("BX BUILDX") # თუ ლოგო არ მოიძებნა
+# --- ლოგოს ცენტრირება ---
+col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
+with col_logo2:
+    try:
+        # დარწმუნდი რომ ფაილს ზუსტად ეს სახელი ჰქვია
+        st.image("Screenshot_2026-04-19_at_01.31.05-removebg-preview.png", use_container_width=True)
+    except:
+        st.title("🏗️ BUILDX")
 
-st.subheader("მშენებლობის დაგეგმვა და კალკულაცია")
+st.markdown("---")
 
 # --- ნაბიჯი 1: მომხმარებლის ინფორმაცია ---
 st.markdown("### 👤 საკონტაქტო ინფორმაცია")
-col_info1, col_info2 = st.columns(2)
-
-with col_info1:
+c_name, c_mail, c_phone = st.columns(3)
+with c_name:
     full_name = st.text_input("სახელი, გვარი *")
+with c_mail:
     email = st.text_input("Mail *")
-
-with col_info2:
+with c_phone:
     phone = st.text_input("ტელეფონის ნომერი *")
-    location = st.selectbox("აირჩიეთ რაიონი:", ["თბილისი", "მცხეთა", "თეთრიწყარო"])
 
-st.divider()
+location = st.selectbox("აირჩიეთ რაიონი:", ["თბილისი", "მცხეთა", "თეთრიწყარო"])
 
-# --- ნაბიჯი 2: მშენებლობის დეტალები ---
+st.markdown("---")
+
+# --- ნაბიჯი 2: კალკულატორი ---
 if full_name and email and phone:
-    st.markdown("### 🏠 მშენებლობის დეტალები")
-    
+    st.markdown("### 🏠 პროექტის ზოგადი პარამეტრები")
     col1, col2 = st.columns(2)
     
     with col1:
-        area = st.number_input("სახლის საერთო ფართობი (კვ.მ):", min_value=10, value=150)
-        floors = st.selectbox("სართულიანობა:", [1, 2, 3])
-        material = st.selectbox("კედლის მასალა:", ["პემზის ბლოკი 20სმ", "აგური", "გაზობლოკი"])
-
-    with col2:
-        st.write("#### 💰 სავარაუდო ბიუჯეტი")
+        area = st.number_input("სახლის საერთო ფართობი (კვ.მ):", min_value=1, value=150)
+        floors = st.selectbox("სართულების რაოდენობა:", [1, 2, 3])
         
-        # საბაზისო ლოგიკა
-        base_price = 300
-        if location == "თბილისი": base_price += 20 # ტრანსპორტირების/ლოკაციის დანამატი
-        if floors > 1: base_price += 50
-        if material == "აგური": base_price += 40
-        
-        total_cost = area * base_price
-        
-        st.metric(label="ჯამური ღირებულება", value=f"${total_cost:,.0f}")
-        st.info(f"ლოკაცია: {location}")
-
-    st.divider()
-    
-    # ნახაზის ატვირთვა
-    st.subheader("📁 ნახაზის ანალიზი (AI)")
-    uploaded_file = st.file_uploader("ატვირთეთ კონსტრუქციული ნახაზი", type=['png', 'jpg', 'pdf'])
-    
-    if st.button("მონაცემების გაგზავნა"):
-        st.success(f"მადლობა {full_name}, თქვენი მოთხოვნა რეგისტრირებულია!")
-else:
-    st.warning("გთხოვთ, შეავსოთ საკონტაქტო ინფორმაცია კალკულატორის გასააქტიურებლად.")
-
-st.caption("© 2026 BuildX Construction Company")
+        st.markdown("### 🏗️ კონსტრუქციული დეტალები")
+        concrete_grade = st.selectbox
