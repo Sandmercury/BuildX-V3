@@ -4,7 +4,7 @@ import re
 # საიტის კონფიგურაცია
 st.set_page_config(page_title="BuildX | Construction", page_icon="🏗️", layout="centered")
 
-# --- CUSTOM CSS (ვიზუალური სრულყოფილება) ---
+# --- CUSTOM CSS (ვიზუალური ხარვეზების გასწორება) ---
 st.markdown("""
     <style>
     .stApp { background-color: #FFFFFF !important; }
@@ -27,10 +27,20 @@ st.markdown("""
         min-height: 45px !important;
     }
 
-    /* ტექსტი ველებში */
-    input, .stSelectbox span, div[role="listbox"] {
+    /* ტექსტი ველებში წერისას */
+    input {
         color: #000000 !important;
         -webkit-text-fill-color: #000000 !important;
+    }
+
+    /* !!! მთავარი გასწორება: არჩეული ტექსტის ხილვადობა Selectbox-ში !!! */
+    div[data-baseweb="select"] div {
+        color: #000000 !important;
+    }
+    
+    /* ჩამოსაშლელი სიის შიგნით ტექსტის ფერი */
+    div[role="listbox"] div {
+        color: #000000 !important;
     }
 
     /* Autofill ფიქსაცია */
@@ -61,10 +71,10 @@ def is_valid_phone(p):
     return bool(re.match(r"^\+?[0-9]*$", p))
 
 # --- LOGO სექცია ---
-# დარწმუნდი, რომ ფაილი "Screenshot_2026-04-19_at_01.31.05-removebg-preview.png" დევს BuildX-V3 საქაღალდეში
 col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
 with col_l2:
     try:
+        # ვიყენებთ შენს მიერ მითითებულ ფაილს "BuildX.png"
         st.image("BuildX.png", use_container_width=True)
     except:
         st.error("🏗️ BuildX")
