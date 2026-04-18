@@ -4,38 +4,42 @@ import re
 # საიტის კონფიგურაცია
 st.set_page_config(page_title="BuildX | Construction", page_icon="🏗️", layout="centered")
 
-# --- CUSTOM CSS (მაქსიმალური ხილვადობა ყველა ელემენტისთვის) ---
+# --- CUSTOM CSS (აბსოლუტური ერთგვაროვნება) ---
 st.markdown("""
     <style>
     .stApp { background-color: #FFFFFF !important; }
     
-    /* მთავარი ტექსტები */
+    /* ტექსტების ფერი */
     h1, h2, h3, h4, p, label, .stMarkdown { 
         color: #000000 !important; 
         font-weight: 600 !important; 
     }
 
-    /* ველების ვიზუალი */
-    .stTextInput div[data-baseweb="input"], 
-    .stNumberInput div[data-baseweb="input"], 
-    .stSelectbox div[data-baseweb="select"],
-    .stSelectbox [data-baseweb="select"] > div {
+    /* ყველა ტიპის ველის გაერთიანებული სტილი */
+    .stTextInput > div > div, 
+    .stNumberInput > div > div, 
+    .stSelectbox > div > div,
+    div[data-baseweb="select"] > div,
+    div[data-baseweb="input"] > div {
+        background-color: #FFFFFF !important;
         border: 2px solid #1A1A1A !important;
         border-radius: 8px !important;
-        background-color: #FFFFFF !important;
+        color: #000000 !important;
         min-height: 45px !important;
     }
 
-    /* ტექსტის ფერი ველების შიგნით და ჩამოსაშლელ სიაში */
-    input, .stSelectbox div[data-baseweb="select"] div { 
-        color: #000000 !important; 
+    /* ტექსტის ფერი ველების შიგნით წერისას და არჩევისას */
+    input, .stSelectbox span, div[role="listbox"] {
+        color: #000000 !important;
         -webkit-text-fill-color: #000000 !important;
     }
 
-    /* სპეციალურად Dropdown-ის შიდა ტექსტისთვის */
+    /* ჩამოსაშლელი მენიუს (Dropdown) სტილი */
+    div[data-baseweb="popover"] ul {
+        background-color: #FFFFFF !important;
+    }
     div[data-baseweb="popover"] li {
         color: #000000 !important;
-        background-color: #FFFFFF !important;
     }
 
     /* Autofill ფიქსაცია */
@@ -44,21 +48,20 @@ st.markdown("""
         -webkit-text-fill-color: #000000 !important;
     }
     
-    /* ფოკუსის სტილი */
-    .stTextInput div[data-baseweb="input"]:focus-within,
-    .stNumberInput div[data-baseweb="input"]:focus-within,
-    .stSelectbox div[data-baseweb="select"]:focus-within {
-        border: 2px solid #2E86C1 !important;
+    /* ფოკუსის ეფექტი */
+    .stTextInput div:focus-within, .stNumberInput div:focus-within, .stSelectbox div:focus-within {
+        border-color: #2E86C1 !important;
     }
 
     /* ღილაკი */
-    .stButton>button {
+    .stButton > button {
         background-color: #2E86C1 !important;
         color: #FFFFFF !important;
         font-weight: bold !important;
         width: 100% !important;
         border-radius: 8px !important;
         height: 50px;
+        border: none !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -106,14 +109,13 @@ location = st.selectbox(
 
 st.markdown("---")
 
-# ვალიდაციის შემოწმება
+# ვალიდაცია
 email_ok = email and is_valid_email(email)
 phone_ok = phone and is_valid_phone(phone) and len(phone) >= 9
 
 if full_name and email_ok and phone_ok and location != "არჩიეთ რაიონი...":
     
     st.markdown("### 🏠 პროექტის ზოგადი პარამეტრები")
-    # ფართობის ველი: value=None ხდის მას ცარიელს საწყის ეტაპზე
     area = st.number_input("სახლის საერთო ფართობი (კვ.მ):", min_value=1, step=1, value=None, placeholder="ჩაწერეთ ციფრები...")
     floors = st.selectbox("სართულების რაოდენობა:", [1, 2, 3])
     
@@ -128,7 +130,6 @@ if full_name and email_ok and phone_ok and location != "არჩიეთ რ�
 
     st.markdown("---")
 
-    # გაანგარიშება ხდება მხოლოდ მაშინ, როცა area შევსებულია
     if area:
         p_const, p_roof, p_facade, p_comm = 280, 85, 120, 60
         if floors > 1: p_const *= 1.15
@@ -153,8 +154,7 @@ if full_name and email_ok and phone_ok and location != "არჩიეთ რ�
         if st.button("მონაცემების გაგზავნა 🚀"):
             st.success(f"მადლობა {full_name}, მონაცემები გაგზავნილია!")
     else:
-        st.info("💡 გთხოვთ შეიყვანოთ სახლის ფართობი ხარჯთაღრიცხვის სანახავად.")
-
+        st.info("💡 შეიყვანეთ ფართობი კალკულაციისთვის.")
 else:
     st.warning("📍 გთხოვთ სრულად შეავსოთ საკონტაქტო ინფორმაცია.")
 
