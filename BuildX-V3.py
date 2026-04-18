@@ -4,10 +4,11 @@ import re
 # საიტის კონფიგურაცია
 st.set_page_config(page_title="BuildX | Construction", page_icon="🏗️", layout="centered")
 
-# --- CUSTOM CSS (ვიზუალური ერთგვაროვნება და ვალიდაცია) ---
+# --- CUSTOM CSS (მაქსიმალური კონტრასტი და ფონის ფიქსაცია) ---
 st.markdown("""
     <style>
-    .stApp { background-color: #FFFFFF; }
+    /* მთლიანი საიტის ფონი */
+    .stApp { background-color: #FFFFFF !important; }
     
     /* ტექსტების ფერი */
     h1, h2, h3, h4, p, label, .stMarkdown { 
@@ -15,7 +16,7 @@ st.markdown("""
         font-weight: 600 !important; 
     }
 
-    /* ველების ერთნაირი ვიზუალი (Input & Selectbox) */
+    /* ველების ერთნაირი ვიზუალი და თეთრი ფონი */
     .stTextInput div[data-baseweb="input"], 
     .stNumberInput div[data-baseweb="input"], 
     .stSelectbox div[data-baseweb="select"],
@@ -24,16 +25,25 @@ st.markdown("""
         border-radius: 8px !important;
         background-color: #FFFFFF !important;
         min-height: 45px !important;
-        color: #000000 !important;
     }
 
-    /* ტექსტის ფერი ველების შიგნით */
+    /* ტექსტის ფერი ველების შიგნით - ძალდატანებით თეთრი ფონი და შავი ასოები */
     input { 
         color: #000000 !important; 
+        background-color: #FFFFFF !important;
+        -webkit-text-fill-color: #000000 !important;
+        caret-color: #000000 !important; /* კურსორის ფერი */
+    }
+
+    /* ბრაუზერის Autofill-ის ფონის ფიქსაცია (რომ არ გაშავდეს) */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset !important;
         -webkit-text-fill-color: #000000 !important;
     }
     
-    /* ფოკუსის სტილი ყველა ველისთვის */
+    /* ფოკუსის სტილი */
     .stTextInput div[data-baseweb="input"]:focus-within,
     .stNumberInput div[data-baseweb="input"]:focus-within,
     .stSelectbox div[data-baseweb="select"]:focus-within {
@@ -49,6 +59,7 @@ st.markdown("""
         padding: 12px 24px !important;
         font-weight: bold !important;
         width: 100% !important;
+        border-radius: 8px !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -59,7 +70,6 @@ def is_valid_email(e):
 
 def is_valid_phone(p):
     if not p: return True
-    # დასაშვებია + მხოლოდ დასაწყისში, დანარჩენი მხოლოდ ციფრები
     pattern = r"^\+?[0-9]*$"
     return bool(re.match(pattern, p))
 
@@ -98,7 +108,7 @@ location = st.selectbox(
 
 st.markdown("---")
 
-# --- ნაბიჯი 2: კალკულატორი (მხოლოდ ვალიდური მონაცემების შემდეგ) ---
+# --- ნაბიჯი 2: კალკულატორი ---
 email_ok = email and is_valid_email(email)
 phone_ok = phone and is_valid_phone(phone) and len(phone) >= 9
 
