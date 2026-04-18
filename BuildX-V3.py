@@ -4,42 +4,44 @@ import re
 # საიტის კონფიგურაცია
 st.set_page_config(page_title="BuildX | Construction", page_icon="🏗️", layout="centered")
 
-# --- CUSTOM CSS (მაქსიმალური კონტრასტი და ფოკუსი) ---
+# --- CUSTOM CSS (ვიზუალური ერთგვაროვნება და ვალიდაცია) ---
 st.markdown("""
     <style>
-    /* მთლიანი საიტის ფონი */
     .stApp { background-color: #FFFFFF; }
     
-    /* ტექსტების ფერი - სუფთა შავი */
+    /* ტექსტების ფერი */
     h1, h2, h3, h4, p, label, .stMarkdown { 
         color: #000000 !important; 
         font-weight: 600 !important; 
     }
 
-    /* ინპუტების სტილი */
-    input { 
-        color: #000000 !important; 
-        background-color: #FFFFFF !important;
-        -webkit-text-fill-color: #000000 !important;
-    }
-    
-    /* ველების ჩარჩოები */
+    /* ველების ერთნაირი ვიზუალი (Input & Selectbox) */
     .stTextInput div[data-baseweb="input"], 
     .stNumberInput div[data-baseweb="input"], 
-    .stSelectbox div[data-baseweb="select"] {
+    .stSelectbox div[data-baseweb="select"],
+    .stSelectbox [data-baseweb="select"] > div {
         border: 2px solid #1A1A1A !important;
         border-radius: 8px !important;
         background-color: #FFFFFF !important;
+        min-height: 45px !important;
+        color: #000000 !important;
     }
 
-    /* აქტიური ველის კონტრასტი (ციმციმა ხაზი და შავი ჩარჩო) */
+    /* ტექსტის ფერი ველების შიგნით */
+    input { 
+        color: #000000 !important; 
+        -webkit-text-fill-color: #000000 !important;
+    }
+    
+    /* ფოკუსის სტილი ყველა ველისთვის */
     .stTextInput div[data-baseweb="input"]:focus-within,
-    .stNumberInput div[data-baseweb="input"]:focus-within {
+    .stNumberInput div[data-baseweb="input"]:focus-within,
+    .stSelectbox div[data-baseweb="select"]:focus-within {
         border: 2px solid #2E86C1 !important;
         box-shadow: 0 0 0 2px rgba(46, 134, 193, 0.2) !important;
     }
 
-    /* ღილაკის მუდმივი კონტრასტული სტილი */
+    /* ღილაკის სტილი */
     .stButton>button {
         background-color: #2E86C1 !important;
         color: #FFFFFF !important;
@@ -47,20 +49,19 @@ st.markdown("""
         padding: 12px 24px !important;
         font-weight: bold !important;
         width: 100% !important;
-        display: block !important;
-        opacity: 1 !important;
-    }
-    .stButton>button:hover {
-        background-color: #1B4F72 !important;
-        color: #FFFFFF !important;
-    }
-
-    /* მეტრიკის ციფრების ფერი */
-    [data-testid="stMetricValue"] {
-        color: #2E86C1 !important;
     }
     </style>
     """, unsafe_allow_html=True)
+
+# ვალიდაციის ფუნქციები
+def is_valid_email(e):
+    return re.match(r"[^@]+@[^@]+\.[^@]+", e) if e else True
+
+def is_valid_phone(p):
+    if not p: return True
+    # დასაშვებია + მხოლოდ დასაწყისში, დანარჩენი მხოლოდ ციფრები
+    pattern = r"^\+?[0-9]*$"
+    return bool(re.match(pattern, p))
 
 # --- ლოგო ---
 col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
@@ -81,9 +82,13 @@ with c_name:
 
 with c_mail:
     email = st.text_input("Mail", placeholder="example@mail.com")
+    if email and not is_valid_email(email):
+        st.caption(" :red[გთხოვთ ჩაწერეთ სწორ ფორმატში]")
 
 with c_phone:
-    phone = st.text_input("ტელეფონის ნომერი", placeholder="5XXXXXXXX")
+    phone = st.text_input("ტელეფონის ნომერი", placeholder="+995XXXXXXXXX")
+    if phone and not is_valid_phone(phone):
+        st.caption(" :red[გთხოვთ ჩაწერეთ სწორ ფორმატში (დასაშვებია მხოლოდ ციფრები და +)]")
 
 location = st.selectbox(
     "აირჩიეთ რაიონი:", 
@@ -91,35 +96,28 @@ location = st.selectbox(
     index=0
 )
 
-# ვალიდაციის ფუნქციები
-def is_valid_email(e):
-    return re.match(r"[^@]+@[^@]+\.[^@]+", e)
-
-def is_valid_phone(p):
-    return p.isdigit() and len(p) >= 9
-
 st.markdown("---")
 
-# --- ნაბიჯი 2: კალკულატორი (ჩნდება მხოლოდ ვალიდაციის შემდეგ) ---
-if full_name and is_valid_email(email) and is_valid_phone(phone) and location != "არჩიეთ რაიონი...":
+# --- ნაბიჯი 2: კალკულატორი (მხოლოდ ვალიდური მონაცემების შემდეგ) ---
+email_ok = email and is_valid_email(email)
+phone_ok = phone and is_valid_phone(phone) and len(phone) >= 9
+
+if full_name and email_ok and phone_ok and location != "არჩიეთ რაიონი...":
     
-    # 🏠 პროექტის ზოგადი პარამეტრები
     st.markdown("### 🏠 პროექტის ზოგადი პარამეტრები")
     area = st.number_input("სახლის საერთო ფართობი (კვ.მ):", min_value=1, step=1, value=150)
     floors = st.selectbox("სართულების რაოდენობა:", [1, 2, 3])
     
-    # 🏗️ კონსტრუქციული დეტალები
     st.markdown("### 🏗️ კონსტრუქციული დეტალები")
     concrete_grade = st.selectbox("ბეტონის მარკა:", ["B20 (M250)", "B25 (M350)"])
     wall_material = st.selectbox("კედლის მასალა:", ["პემზის ბლოკი", "აგური", "გაზბლოკი"])
     
-    # 🏠 ექსტერიერი
     st.markdown("### 🏠 ექსტერიერი")
     roof_type = st.selectbox("სახურავის ტიპი:", ["თუნუქი (Classic)", "ბრტყელი გადახურვა"])
     window_type = st.selectbox("ფანჯარა:", ["სტანდარტული მეტალოპლასტმასი", "პრემიუმ ალუმინი"])
     door_type = st.selectbox("კარი:", ["რკინა", "ხე"])
 
-    # --- გაანგარიშების ლოგიკა ---
+    # გაანგარიშება
     p_const, p_roof, p_facade, p_comm = 280, 85, 120, 60
     if floors > 1: p_const *= 1.15
     if wall_material == "აგური": p_const += 45
@@ -128,10 +126,7 @@ if full_name and is_valid_email(email) and is_valid_phone(phone) and location !=
     if window_type == "პრემიუმ ალუმინი": p_facade += 160
     if door_type == "ხე": p_facade += 25
 
-    val_const = area * p_const
-    val_roof = area * p_roof
-    val_facade = area * p_facade
-    val_comm = area * p_comm
+    val_const, val_roof, val_facade, val_comm = area*p_const, area*p_roof, area*p_facade, area*p_comm
     total_cost = val_const + val_roof + val_facade + val_comm
 
     st.markdown("---")
@@ -148,18 +143,16 @@ if full_name and is_valid_email(email) and is_valid_phone(phone) and location !=
     st.file_uploader("ატვირთეთ კონსტრუქციული ნახაზი", type=['png', 'jpg', 'pdf'])
     
     if st.button("მონაცემების გაგზავნა 🚀"):
-        st.success(f"მადლობა {full_name}, თქვენი მონაცემები წარმატებით გაიგზავნა!")
+        st.success(f"მადლობა {full_name}, მონაცემები გაგზავნილია!")
 
 else:
-    # შეცდომების ჩვენება
     if not full_name:
-        st.info("ℹ️ კალკულატორის გასააქტიურებლად შეიყვანეთ სახელი და გვარი.")
-    elif not is_valid_email(email):
-        st.error("📧 გთხოვთ, შეიყვანოთ მეილი სწორი ფორმატით (@-ის ჩათვლით).")
-    elif not is_valid_phone(phone):
-        st.error("📞 ნომერი უნდა შეიცავდეს მხოლოდ ციფრებს (მინ. 9 სიმბოლო).")
+        st.info("ℹ️ შეიყვანეთ სახელი და გვარი.")
+    elif not email_ok:
+        st.warning("📧 გთხოვთ მიუთითოთ მეილი სწორი ფორმატით.")
+    elif not phone_ok:
+        st.warning("📞 გთხოვთ მიუთითოთ ვალიდური ტელეფონის ნომერი.")
     elif location == "არჩიეთ რაიონი...":
-        st.warning("📍 გთხოვთ, აირჩიოთ მშენებლობის რაიონი.")
+        st.warning("📍 აირჩიეთ მშენებლობის რაიონი.")
 
-st.markdown("---")
-st.caption("© 2026 BuildX Construction Company | All Rights Reserved")
+st.caption("© 2026 BuildX Construction Company")
