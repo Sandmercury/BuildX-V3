@@ -1,60 +1,65 @@
 import streamlit as st
 import re
 
-# საიტის კონფიგურაცია
-st.set_page_config(page_title="BuildX | Premium", page_icon="🏗️", layout="centered")
+# 1. გვერდის კონფიგურაცია (Light Mode-ის იძულება)
+st.set_page_config(
+    page_title="BuildX | Smart Construction",
+    page_icon="🏗️",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
 
-# --- აბსოლუტური კონტროლი ჩარჩოებზე და ვიზუალზე ---
+# 2. ULTRA-CLEAN UI CSS
 st.markdown("""
     <style>
-    /* საიტის ფონი */
+    /* ბრაუზერის თემის იგნორირება და გათეთრება */
+    :root { --primary-color: #2E86C1; }
     .stApp { background-color: #FFFFFF !important; }
-
-    /* ტექსტების გაშავება */
-    h1, h2, h3, h4, p, label, span, div, .stMarkdown {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
+    
+    /* ტექსტის სტილი */
+    h1, h2, h3, h4, label, p, .stMarkdown {
+        color: #1A1A1A !important;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
     }
 
-    /* ველების ჩარჩოების სრული გათანაბრება */
-    /* მიზანში ვიღებთ Streamlit-ის შიდა კონტეინერებს */
-    [data-baseweb="input"], [data-baseweb="select"] {
-        border: 2.5px solid #000000 !important;
-        border-radius: 12px !important;
+    /* ველების კონტეინერები - შევიწროებული და დახვეწილი */
+    div[data-baseweb="input"], div[data-baseweb="select"] {
+        border: 1.5px solid #E2E8F0 !important;
+        border-radius: 10px !important;
+        background-color: #F8FAFC !important;
+        transition: all 0.2s ease;
+    }
+    
+    /* ფოკუსის ეფექტი */
+    div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within {
+        border-color: #2E86C1 !important;
         background-color: #FFFFFF !important;
-    }
-
-    /* ვაშორებთ სტანდარტულ თხელ ჩარჩოებს, რომ ჩვენმა დაწერილმა არ იორმაგოს */
-    [data-baseweb="input"] > div, [data-baseweb="select"] > div {
-        border: none !important;
+        box-shadow: 0 0 0 3px rgba(46, 134, 193, 0.1) !important;
     }
 
     /* ტექსტი ველებში */
-    input {
-        color: #000000 !important;
-        background-color: #FFFFFF !important;
-    }
+    input { color: #1A1A1A !important; font-size: 16px !important; }
 
-    /* არჩეული მნიშვნელობის ხილვადობა (Selectbox-ში) */
-    div[data-testid="stSelectbox"] div[data-baseweb="select"] {
-        color: #000000 !important;
-    }
-
-    /* Autofill ფიქსაცია */
-    input:-webkit-autofill {
-        -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset !important;
-        -webkit-text-fill-color: #000000 !important;
-    }
-
-    /* ღილაკის სტილი */
+    /* ღილაკის დიზაინი */
     .stButton > button {
-        background: linear-gradient(90deg, #2E86C1 0%, #3498DB 100%) !important;
-        color: #FFFFFF !important;
-        border: none !important;
-        font-weight: bold !important;
         width: 100% !important;
-        height: 50px !important;
-        border-radius: 12px !important;
+        background: linear-gradient(90deg, #2E86C1 0%, #2471A3 100%) !important;
+        color: white !important;
+        border: none !important;
+        padding: 12px !important;
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+        font-size: 18px !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+    }
+    
+    /* Metric Card */
+    div[data-testid="stMetric"] {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 15px !important;
+        padding: 20px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -67,63 +72,64 @@ def is_valid_phone(p):
     if not p: return True
     return bool(re.match(r"^\+?[0-9]*$", p))
 
-# --- LOGO ---
-col_l1, col_l2, col_l3 = st.columns([1, 1.5, 1])
-with col_l2:
+# --- HEADER / LOGO ---
+col_logo1, col_logo2, col_logo3 = st.columns([1, 1, 1])
+with col_logo2:
     try:
         st.image("BuildX.png", use_container_width=True)
     except:
-        st.markdown("<h1 style='text-align: center; color: black;'>🏗️ BUILDX</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: center;'>🏗️ BUILDX</h1>", unsafe_allow_html=True)
 
+st.markdown("<p style='text-align: center; color: #64748b !important;'>Smart Construction Estimator</p>", unsafe_allow_html=True)
 st.markdown("---")
 
-# --- STEP 1: CONTACT ---
-st.markdown("### 👤 საკონტაქტო ინფორმაცია")
-c_name, c_mail, c_phone = st.columns(3)
+# --- ნაბიჯი 1: საკონტაქტო ბლოკი ---
+st.subheader("👤 საკონტაქტო ინფორმაცია")
+row1_col1, row1_col2 = st.columns(2)
 
-with c_name:
+with row1_col1:
     full_name = st.text_input("სახელი, გვარი", placeholder="მაგ: ლაშა ჯაკობია")
-
-with c_mail:
-    email = st.text_input("Email", placeholder="example@email.com")
-    if email and not is_valid_email(email):
-        st.caption(" :red[გთხოვთ ჩაწერეთ სწორ ფორმატში]")
-
-with c_phone:
     phone = st.text_input("ტელეფონის ნომერი", placeholder="5XXXXXXXX")
-    if phone and not is_valid_phone(phone):
-        st.caption(" :red[გთხოვთ ჩაწერეთ სწორ ფორმატში]")
 
-location = st.selectbox(
-    "აირჩიეთ რაიონი:", 
-    ["არჩიეთ რაიონი...", "თბილისი", "მცხეთა", "თეთრიწყარო"],
-    index=0
-)
+with row1_col2:
+    email = st.text_input("Email", placeholder="example@email.com")
+    location = st.selectbox("მშენებლობის რაიონი", ["არჩიეთ რაიონი...", "თბილისი", "მცხეთა", "თეთრიწყარო"])
 
-st.markdown("---")
+# ვალიდაციის შეტყობინებები
+if email and not is_valid_email(email): st.error("📧 ჩაწერეთ სწორი Email ფორმატი")
+if phone and not is_valid_phone(phone): st.error("📞 ნომერი უნდა შეიცავდეს მხოლოდ ციფრებს")
 
-# ვალიდაცია
+st.markdown("<br>", unsafe_allow_html=True)
+
+# ვალიდაციის ლოგიკა
 email_ok = email and is_valid_email(email)
 phone_ok = phone and is_valid_phone(phone) and len(phone) >= 9
 
 if full_name and email_ok and phone_ok and location != "არჩიეთ რაიონი...":
     
-    st.markdown("### 🏠 პროექტის ზოგადი პარამეტრები")
-    area = st.number_input("სახლის საერთო ფართობი (კვ.მ):", min_value=1, step=1, value=None, placeholder="ჩაწერეთ ციფრები...")
-    floors = st.selectbox("სართულების რაოდენობა:", [1, 2, 3])
-    
-    st.markdown("### 🏗️ კონსტრუქციული დეტალები")
-    concrete_grade = st.selectbox("ბეტონის მარკა:", ["B20 (M250)", "B25 (M350)"])
-    wall_material = st.selectbox("კედლის მასალა:", ["პემზის ბლოკი", "აგური", "გაზბლოკი"])
-    
-    st.markdown("### 🏠 ექსტერიერი")
-    roof_type = st.selectbox("სახურავის ტიპი:", ["თუნუქი (Classic)", "ბრტყელი გადახურვა"])
-    window_type = st.selectbox("ფანჯარა:", ["სტანდარტული მეტალოპლასტმასი", "პრემიუმ ალუმინი"])
-    door_type = st.selectbox("კარი:", ["რკინა", "ხე"])
-
     st.markdown("---")
+    
+    # --- ნაბიჯი 2: კალკულატორი ორ სვეტად ---
+    st.subheader("🏠 პროექტის პარამეტრები")
+    
+    col_a, col_b = st.columns(2)
+    
+    with col_a:
+        st.markdown("**ზოგადი**")
+        area = st.number_input("ფართობი (კვ.მ):", min_value=1, step=1, value=None, placeholder="მაგ: 150")
+        floors = st.selectbox("სართულები:", [1, 2, 3])
+        roof_type = st.selectbox("სახურავი:", ["თუნუქი (Classic)", "ბრტყელი გადახურვა"])
+
+    with col_b:
+        st.markdown("**მასალები**")
+        concrete_grade = st.selectbox("ბეტონის მარკა:", ["B20 (M250)", "B25 (M350)"])
+        wall_material = st.selectbox("კედლის მასალა:", ["პემზის ბლოკი", "აგური", "გაზბლოკი"])
+        window_type = st.selectbox("ფანჯარა:", ["სტანდარტული", "პრემიუმ ალუმინი"])
+
+    st.markdown("<br>", unsafe_allow_html=True)
 
     if area:
+        # ლოგიკა
         p_const, p_roof, p_facade, p_comm = 280, 85, 120, 60
         if floors > 1: p_const *= 1.15
         if wall_material == "აგური": p_const += 45
@@ -132,23 +138,26 @@ if full_name and email_ok and phone_ok and location != "არჩიეთ რ�
 
         total_cost = area * (p_const + p_roof + p_facade + p_comm)
 
-        st.metric(label="ჯამური სავარაუდო ბიუჯეტი", value=f"${total_cost:,.0f}")
+        # ფასის ბლოკი
+        st.metric(label="სავარაუდო ბიუჯეტი (ჯამში)", value=f"${total_cost:,.0f}")
 
-        with st.expander("🔍 იხილეთ დეტალური განაწილება"):
-            st.write(f"🔹 **კონსტრუქციული ნაწილი:** ${area * p_const:,.0f}")
-            st.write(f"🔹 **გადახურვა:** ${area * p_roof:,.0f}")
-            st.write(f"🔹 **ფასადი და კარ-ფანჯარა:** ${area * p_facade:,.0f}")
-            st.write(f"🔹 **კომუნიკაციები:** ${area * p_comm:,.0f}")
+        with st.expander("🔍 იხილეთ ხარჯების ჩაშლა"):
+            res_col1, res_col2 = st.columns(2)
+            res_col1.write(f"🔹 კონსტრუქცია: **${area * p_const:,.0f}**")
+            res_col1.write(f"🔹 გადახურვა: **${area * p_roof:,.0f}**")
+            res_col2.write(f"🔹 ფასადი: **${area * p_facade:,.0f}**")
+            res_col2.write(f"🔹 კომუნიკაციები: **${area * p_comm:,.0f}**")
 
         st.markdown("---")
         st.subheader("📁 ნახაზის ატვირთვა")
-        st.file_uploader("ატვირთეთ ფაილი (AI Vision ანალიზი)", type=['png', 'jpg', 'pdf'])
+        st.file_uploader("ატვირთეთ ფაილი AI ანალიზისთვის", type=['png', 'jpg', 'pdf'])
         
         if st.button("მონაცემების გაგზავნა 🚀"):
-            st.success(f"მადლობა {full_name}, მონაცემები გაგზავნილია!")
+            st.success(f"მადლობა {full_name}, მოთხოვნა გაგზავნილია!")
     else:
-        st.info("💡 შეიყვანეთ ფართობი კალკულაციისთვის.")
+        st.info("💡 შეიყვანეთ ფართობი კალკულაციის სანახავად")
+
 else:
-    st.warning("📍 გთხოვთ სრულად შეავსოთ საკონტაქტო ინფორმაცია.")
+    st.info("📍 გთხოვთ, შეავსოთ საკონტაქტო მონაცემები კალკულატორის გასააქტიურებლად.")
 
 st.caption("© 2026 BuildX Construction Company")
