@@ -76,7 +76,7 @@ st.markdown("### 👤 საკონტაქტო ინფორმაცი
 c_name, c_mail, c_phone = st.columns(3)
 
 with c_name:
-    full_name = st.text_input("სახელი, გვარი", placeholder="მაგ: სანდრო მერკვილიშვილი")
+    full_name = st.text_input("სახელი, გვარი", placeholder="მაგ: ლაშა ჯაკობია")
 
 with c_mail:
     email = st.text_input("Mail", placeholder="example@mail.com")
@@ -84,7 +84,7 @@ with c_mail:
         st.caption(" :red[გთხოვთ ჩაწერეთ სწორ ფორმატში]")
 
 with c_phone:
-    phone = st.text_input("ტელეფონის ნომერი", placeholder="+995XXXXXXXXX")
+    phone = st.text_input("ტელეფონის ნომერი", placeholder="5XXXXXXXX")
     if phone and not is_valid_phone(phone):
         st.caption(" :red[გთხოვთ ჩაწერეთ სწორ ფორმატში (დასაშვებია მხოლოდ ციფრები და +)]")
 
