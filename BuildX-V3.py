@@ -580,4 +580,4 @@ window.addEventListener('resize', resize);
 </body>
 </html>"""
 
-components.html(HTML, height=700, scrolling=False)
+components.html(HTML, height=2200, scrolling=False)
