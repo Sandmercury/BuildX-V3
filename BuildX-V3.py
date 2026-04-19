@@ -296,7 +296,7 @@ body {
   <!-- HEADER -->
   <div class="hdr">
     <img src="https://raw.githubusercontent.com/Sandmercury/BuildX-V3/main/BuildiX-logo.png"
-         alt="BuildiX" style="height:130px;width:auto;margin-bottom:18px;">
+         alt="BuildiX" style="height:200px;width:auto;margin-bottom:18px;">
     <div class="tagline">Smart Construction Estimator</div>
     <div class="badges">
       <span class="badge">პროფესიონალური შეფასება</span>
