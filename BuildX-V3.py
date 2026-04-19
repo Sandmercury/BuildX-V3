@@ -315,7 +315,7 @@ body {
       <div>
         <div class="f">
           <label>სახელი, გვარი</label>
-          <input id="iName" type="text" placeholder="ლაშა ჯაკობია" oninput="chk()">
+          <input id="iName" type="text" placeholder="მაგ: ლაშა ჯაკობია" oninput="chk()">
         </div>
         <div class="f">
           <label>ტელეფონი</label>
