@@ -45,25 +45,6 @@ body {
 /* ─── HEADER ─── */
 .hdr { text-align:center; margin-bottom:40px; }
 
-.logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 12px;
-}
-.logo-icon {
-    width: 50px; height: 50px;
-    background: linear-gradient(135deg, #C8A96E, #8B6B35);
-    border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 6px 24px rgba(200,169,110,0.4);
-}
-.logo-name {
-    font-family: 'DM Serif Display', serif;
-    font-size: 34px;
-    color: #F0EDE7;
-    letter-spacing: 2px;
-}
 .tagline {
     font-size: 10px;
     color: #555;
@@ -314,17 +295,8 @@ body {
 
   <!-- HEADER -->
   <div class="hdr">
-    <div style="display:flex;justify-content:center">
-      <div class="logo">
-        <div class="logo-icon">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-            <path d="M3 21H21M3 18H21M6 18V10M10 18V10M14 18V10M18 18V10M12 3L21 8H3L12 3Z"
-              stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <span class="logo-name">BuildiX</span>
-      </div>
-    </div>
+    <img src="https://raw.githubusercontent.com/Sandmercury/BuildX-V3/main/BuildiX-logo.png"
+         alt="BuildiX" style="height:130px;width:auto;margin-bottom:18px;">
     <div class="tagline">Smart Construction Estimator</div>
     <div class="badges">
       <span class="badge">პროფესიონალური შეფასება</span>
