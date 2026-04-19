@@ -1,418 +1,583 @@
 import streamlit as st
-import re
+import streamlit.components.v1 as components
 
 st.set_page_config(
-    page_title="BuildX | Smart Construction",
+    page_title="BuildiX | Smart Construction",
     page_icon="🏗️",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="collapsed"
 )
 
+# Strip all Streamlit chrome and match dark bg
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:wght@600&display=swap');
-
-/* ── 1. APP SHELL ── */
-.stApp,
-.stApp > div,
-section.main,
-section.main > div,
-.block-container {
-    background-color: #F5F3EE !important;
-}
-.block-container {
-    max-width: 760px !important;
-    padding-top: 40px !important;
-    padding-bottom: 80px !important;
+.stApp, section.main, .block-container,
+.stApp > div, section.main > div {
+    background: #0A0A0A !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
 }
 #MainMenu, footer, header { visibility: hidden !important; }
-
-/* ── 2. FONT — override Source Sans ── */
-html, body,
-.stApp *:not(.bx-logo-text):not(.bx-result-amount) {
-    font-family: 'DM Sans', sans-serif !important;
-}
-
-/* ── 3. CARD — target Streamlit's border container wrapper ──
-   st.container(border=True) renders:
-   div[data-testid="stVerticalBlockBorderWrapper"]
-     └─ div  ← this inner div gets the card style             */
-div[data-testid="stVerticalBlockBorderWrapper"] {
-    background: #FFFFFF !important;
-    border: 1px solid #E2DFD8 !important;
-    border-radius: 18px !important;
-    overflow: hidden !important;
-    margin-bottom: 12px !important;
-}
-/* Remove the inner div's own padding so we control it */
-div[data-testid="stVerticalBlockBorderWrapper"] > div {
-    padding: 24px 26px 26px !important;
-    background: #FFFFFF !important;
-    border: none !important;
-    border-radius: 0 !important;
-}
-
-/* ── 4. INPUT LABELS ── */
-.stTextInput > label,
-.stSelectbox > label,
-.stNumberInput > label,
-.stFileUploader > label {
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    color: #9A9790 !important;
-    letter-spacing: 1.2px !important;
-    text-transform: uppercase !important;
-    margin-bottom: 4px !important;
-}
-
-/* ── 5. INPUT BOXES ──
-   Target every possible Streamlit version's wrapper         */
-div[data-baseweb="input"],
-div[data-baseweb="input"] > div,
-div[data-baseweb="base-input"] {
-    border-radius: 10px !important;
-}
-div[data-baseweb="input"] > div {
-    background-color: #F7F6F3 !important;
-    border: 1.5px solid #E2DFD8 !important;
-    box-shadow: none !important;
-}
-/* Kill the red invalid border Streamlit adds on first load */
-div[data-baseweb="input"] > div,
-div[data-baseweb="input"] > div[aria-invalid],
-div[data-baseweb="input"] > div[aria-invalid="true"],
-div[data-baseweb="input"] > div[class*="error"] {
-    border-color: #E2DFD8 !important;
-    box-shadow: none !important;
-    outline: none !important;
-}
-div[data-baseweb="input"]:focus-within > div {
-    border-color: #C8A96E !important;
-    background-color: #FFFFFF !important;
-    box-shadow: 0 0 0 3px rgba(200,169,110,0.13) !important;
-}
-div[data-baseweb="input"] input {
-    color: #1C1B18 !important;
-    font-size: 14px !important;
-    background: transparent !important;
-}
-
-/* ── 6. SELECT BOXES ── */
-div[data-baseweb="select"] > div:first-child {
-    background-color: #F7F6F3 !important;
-    border: 1.5px solid #E2DFD8 !important;
-    border-radius: 10px !important;
-    box-shadow: none !important;
-}
-div[data-baseweb="select"]:focus-within > div:first-child {
-    border-color: #C8A96E !important;
-    background-color: #FFFFFF !important;
-    box-shadow: 0 0 0 3px rgba(200,169,110,0.13) !important;
-}
-div[data-baseweb="select"] span,
-div[data-baseweb="select"] [data-id="select"] {
-    color: #1C1B18 !important;
-    font-size: 14px !important;
-}
-
-/* ── 7. NUMBER INPUT ── */
-div[data-testid="stNumberInput"] div[data-baseweb="input"] > div {
-    background-color: #F7F6F3 !important;
-    border: 1.5px solid #E2DFD8 !important;
-    border-radius: 10px !important;
-    box-shadow: none !important;
-}
-div[data-testid="stNumberInput"] div[data-baseweb="input"]:focus-within > div {
-    border-color: #C8A96E !important;
-    background-color: #FFFFFF !important;
-    box-shadow: 0 0 0 3px rgba(200,169,110,0.13) !important;
-}
-
-/* ── 8. BUTTON ── */
-.stButton > button {
-    width: 100% !important;
-    height: 52px !important;
-    background: #1C1B18 !important;
-    color: #F5F3EE !important;
-    border: none !important;
-    border-radius: 12px !important;
-    font-size: 13px !important;
-    font-weight: 600 !important;
-    letter-spacing: 1.5px !important;
-    text-transform: uppercase !important;
-    box-shadow: none !important;
-}
-.stButton > button:hover {
-    background: #2D2C28 !important;
-    box-shadow: 0 6px 20px rgba(28,27,24,0.18) !important;
-}
-.stButton > button p { color: #F5F3EE !important; }
-
-/* ── 9. FILE UPLOADER ── */
-section[data-testid="stFileUploadDropzone"] {
-    background: #F7F6F3 !important;
-    border: 1.5px dashed #D4D0C8 !important;
-    border-radius: 12px !important;
-}
-section[data-testid="stFileUploadDropzone"]:hover {
-    border-color: #C8A96E !important;
-}
-
-/* ── 10. SUCCESS / ERROR ── */
-div[data-testid="stSuccessMessage"] {
-    background: #EAF5EE !important;
-    border-color: #2D7A5A !important;
-    border-radius: 12px !important;
-}
-div[data-testid="stSuccessMessage"] p { color: #1A4D35 !important; font-weight: 500 !important; }
-div[data-testid="stErrorMessage"] { border-radius: 10px !important; }
-
-/* ── 11. CAPTION ── */
-.stCaption p {
-    text-align: center !important;
-    font-size: 11px !important;
-    color: #B5B2AB !important;
-    letter-spacing: 2px !important;
-    text-transform: uppercase !important;
-}
-
-/* ── 12. COLUMNS ── */
-div[data-testid="stHorizontalBlock"] { gap: 14px !important; }
-
-/* ── 13. PURE HTML CLASSES ── */
-.bx-logo-wrap {
-    display:flex; align-items:center; justify-content:center;
-    gap:13px; margin-bottom:10px;
-}
-.bx-logo-icon {
-    width:46px; height:46px; background:#1C1B18; border-radius:12px;
-    display:flex; align-items:center; justify-content:center;
-}
-.bx-logo-text {
-    font-family:'Playfair Display',serif !important;
-    font-size:28px; font-weight:600; letter-spacing:4px; color:#1C1B18;
-}
-.bx-tagline {
-    text-align:center; font-size:11px; color:#9A9790;
-    letter-spacing:3.5px; text-transform:uppercase; margin-bottom:20px;
-}
-.bx-trust {
-    display:flex; justify-content:center; gap:20px; flex-wrap:wrap;
-    margin:0 auto 24px; padding:11px 20px;
-    background:#FFFFFF; border-radius:50px; border:1px solid #E2DFD8;
-    width:fit-content;
-}
-.bx-trust-item {
-    display:flex; align-items:center; gap:7px;
-    font-size:12px; font-weight:500; color:#6B6963; white-space:nowrap;
-}
-.bx-trust-dot {
-    width:6px; height:6px; border-radius:50%;
-    background:#C8A96E; flex-shrink:0;
-}
-/* Card header — rendered with st.markdown inside the container */
-.bx-card-hdr {
-    display:flex; align-items:center; gap:12px;
-    padding-bottom:16px; border-bottom:1px solid #EDEAE3;
-    margin-bottom:20px; margin-left:-26px; margin-right:-26px;
-    padding-left:26px; padding-right:26px;
-}
-.bx-step {
-    width:28px; height:28px; background:#1C1B18; color:#F5F3EE;
-    border-radius:8px; display:inline-flex; align-items:center;
-    justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;
-}
-.bx-title { font-size:15px; font-weight:600; color:#1C1B18; }
-.bx-opt   { font-size:11px; color:#9A9790; font-weight:400; margin-left:8px; }
-.bx-grp   {
-    font-size:10px; font-weight:700; letter-spacing:2px;
-    text-transform:uppercase; color:#B5B2AB; display:block;
-    margin-bottom:6px; margin-top:2px;
-}
-/* Result panel — ALL colours explicit, never inherited */
-.bx-result {
-    background:#1C1B18; border-radius:14px;
-    padding:24px 26px 20px; margin-top:10px;
-}
-.bx-rlabel {
-    font-family:'DM Sans',sans-serif; font-size:10px; font-weight:700;
-    letter-spacing:2.5px; text-transform:uppercase; color:#6B6963;
-    margin-bottom:5px;
-}
-.bx-ramt {
-    font-family:'Playfair Display',serif; font-size:42px; font-weight:600;
-    color:#F0EDE7; letter-spacing:-1px; line-height:1;
-}
-.bx-rcur { font-family:'DM Sans',sans-serif; font-size:22px; color:#C8A96E; margin-right:3px; }
-.bx-bkdn { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px; }
-.bx-bitem { background:#272724; border-radius:10px; padding:12px 14px; }
-.bx-blbl  {
-    font-family:'DM Sans',sans-serif; font-size:10px; color:#706D66;
-    letter-spacing:1.2px; text-transform:uppercase; margin-bottom:4px;
-}
-.bx-bval  {
-    font-family:'DM Sans',sans-serif; font-size:15px;
-    font-weight:600; color:#E0DDD6;
-}
-.bx-info {
-    display:flex; gap:10px; padding:12px 15px; margin-top:10px;
-    background:#F7F6F3; border:1px solid #E2DFD8; border-radius:10px;
-}
-.bx-ispan { font-family:'DM Sans',sans-serif; font-size:12px; color:#8A8880; line-height:1.65; }
-.bx-idot  {
-    width:6px; height:6px; border-radius:50%;
-    background:#C8A96E; margin-top:6px; flex-shrink:0;
-}
+div[data-testid="stVerticalBlock"] { gap: 0 !important; }
+iframe { display: block !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# ── helpers ──────────────────────────────────────────────────
-def valid_email(e): return bool(re.match(r"[^@]+@[^@]+\.[^@]+", e)) if e else True
-def valid_phone(p):
-    if not p: return True
-    return bool(re.match(r"^\+?[\d\s\-()+]*$", p))
+HTML = """<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display&family=Noto+Sans+Georgian:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
 
-# ── HEADER ───────────────────────────────────────────────────
-st.markdown("""
-<div style="text-align:center;margin-bottom:6px">
-  <div class="bx-logo-wrap">
-    <div class="bx-logo-icon">
-      <svg width="23" height="23" viewBox="0 0 24 24" fill="none">
-        <path d="M3 21H21M3 18H21M6 18V10M10 18V10M14 18V10M18 18V10M12 3L21 8H3L12 3Z"
-          stroke="#F5F3EE" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+body {
+    background: #0A0A0A;
+    font-family: 'Noto Sans Georgian', 'Inter', sans-serif;
+    color: #F0EDE7;
+    padding: 48px 20px 72px;
+}
+
+.wrap { max-width: 660px; margin: 0 auto; }
+
+/* ─── HEADER ─── */
+.hdr { text-align:center; margin-bottom:40px; }
+
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+}
+.logo-icon {
+    width: 50px; height: 50px;
+    background: linear-gradient(135deg, #C8A96E, #8B6B35);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 24px rgba(200,169,110,0.4);
+}
+.logo-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 34px;
+    color: #F0EDE7;
+    letter-spacing: 2px;
+}
+.tagline {
+    font-size: 10px;
+    color: #555;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+}
+.badges {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.badge {
+    padding: 5px 14px;
+    background: #161616;
+    border: 1px solid #262626;
+    border-radius: 100px;
+    font-size: 11px;
+    color: #666;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.badge::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #C8A96E;
+    flex-shrink: 0;
+}
+
+/* ─── CARD ─── */
+.card {
+    background: #161616;
+    border: 1px solid #242424;
+    border-radius: 20px;
+    padding: 28px 28px 30px;
+    margin-bottom: 12px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+.card-hdr {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #222;
+    margin: 0 -28px 24px;
+    padding: 0 28px 20px;
+}
+.step-n {
+    width: 30px; height: 30px;
+    background: linear-gradient(135deg, #C8A96E, #9A6F30);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #111;
+    flex-shrink: 0;
+    box-shadow: 0 3px 14px rgba(200,169,110,0.4);
+}
+.card-title { font-size: 15px; font-weight: 600; color: #F0EDE7; }
+.card-opt   { font-size: 11px; color: #555; font-weight: 400; margin-left: 5px; }
+
+/* ─── GRID ─── */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ─── FIELDS ─── */
+.f { margin-bottom: 14px; }
+.f:last-child { margin-bottom: 0; }
+
+.f label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    color: #555;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+}
+.f input, .f select {
+    width: 100%;
+    height: 46px;
+    background: #0F0F0F;
+    border: 1.5px solid #2E2E2E;
+    border-radius: 10px;
+    padding: 0 14px;
+    font-size: 14px;
+    color: #F0EDE7;
+    font-family: 'Noto Sans Georgian', 'Inter', sans-serif;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.f input::placeholder { color: #333; }
+.f input:focus, .f select:focus {
+    border-color: #C8A96E;
+    background: #131313;
+    box-shadow: 0 0 0 3px rgba(200,169,110,0.13);
+}
+.f input.err { border-color: #7A2020 !important; box-shadow: 0 0 0 3px rgba(122,32,32,.12) !important; }
+
+.f select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23555' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 38px;
+}
+.f select option { background: #1E1E1E; color: #F0EDE7; }
+
+.err-msg { font-size: 11px; color: #F87171; margin-top: 5px; display: none; }
+
+/* ─── SECTION LABEL ─── */
+.sec-lbl {
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: #383838; display: block;
+    margin-bottom: 10px; margin-top: 2px;
+}
+
+/* ─── RESULT PANEL ─── */
+.result {
+    background: #0C0C0C;
+    border: 1px solid #212121;
+    border-radius: 16px;
+    padding: 24px 26px 22px;
+    margin-top: 18px;
+    position: relative;
+    overflow: hidden;
+    display: none;
+}
+.result.on { display: block; }
+.result::before {
+    content: '';
+    position: absolute; top:0; left:0; right:0; height:2px;
+    background: linear-gradient(90deg, #C8A96E, #6B4A1E);
+}
+.r-lbl {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: #444; margin-bottom: 8px;
+}
+.r-amt {
+    font-family: 'DM Serif Display', serif;
+    font-size: 50px; color: #F0EDE7;
+    line-height: 1; letter-spacing: -1px;
+}
+.r-cur {
+    font-family: 'Inter', sans-serif;
+    font-size: 28px; color: #C8A96E;
+    margin-right: 4px; font-weight: 300;
+}
+.bkdn {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-top: 20px;
+}
+.bi {
+    background: #080808;
+    border: 1px solid #1C1C1C;
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+.bi-lbl { font-size: 9px; color: #444; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 5px; }
+.bi-val { font-size: 15px; font-weight: 600; color: #C0BDB6; display: flex; align-items: center; gap: 8px; }
+.bi-acc { width:3px; height:14px; background:#C8A96E; border-radius:2px; flex-shrink:0; }
+
+/* ─── INFO / HINT BOX ─── */
+.hint {
+    display: flex; gap: 10px;
+    padding: 13px 15px; margin-top: 14px;
+    background: #111; border: 1px solid #1E1E1E;
+    border-radius: 10px;
+    font-size: 12px; color: #4A4A4A; line-height: 1.7;
+}
+.hint .dot { opacity:.35; flex-shrink:0; margin-top:1px; }
+
+/* ─── FILE DROP ─── */
+.file-drop {
+    border: 1.5px dashed #282828;
+    border-radius: 12px;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    background: #0F0F0F;
+    position: relative;
+}
+.file-drop:hover, .file-drop.over { border-color: #C8A96E; background: #131313; }
+.file-drop input[type=file] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer;
+    height: 100%; border: none; background: none;
+}
+.fd-icon { font-size: 22px; margin-bottom: 8px; opacity: .25; }
+.fd-txt  { font-size: 12px; color: #444; }
+.fd-hint { font-size: 10px; color: #303030; margin-top: 4px; letter-spacing:1px; text-transform:uppercase; }
+.fd-name { font-size: 12px; color: #C8A96E; margin-top: 8px; display: none; }
+
+/* ─── BUTTON ─── */
+.btn {
+    width: 100%; height: 54px;
+    background: linear-gradient(135deg, #C8A96E, #9A6F30);
+    color: #111; border: none; border-radius: 12px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 4px 24px rgba(200,169,110,0.32);
+    transition: all .2s;
+    font-family: 'Noto Sans Georgian', 'Inter', sans-serif;
+    margin-top: 10px;
+}
+.btn:hover { background: linear-gradient(135deg, #D4B87A, #C8A96E); box-shadow: 0 8px 32px rgba(200,169,110,0.5); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+
+/* ─── SUCCESS ─── */
+.success {
+    background: #091A0F; border: 1px solid #174D28;
+    border-radius: 12px; padding: 16px 20px;
+    font-size: 13px; color: #4ADE80; font-weight: 500;
+    display: none; margin-top: 10px;
+}
+.success.on { display: block; }
+
+/* ─── LOCKED ─── */
+.locked {
+    display: flex; gap: 12px;
+    padding: 15px 18px; margin-top: 4px;
+    background: #111; border: 1px solid #1E1E1E;
+    border-radius: 12px; align-items: center;
+    font-size: 12px; color: #404040; line-height: 1.6;
+}
+
+/* ─── STEPS 2-3 (hidden) ─── */
+.s23 { display: none; }
+.s23.on { display: block; }
+
+/* ─── FOOTER ─── */
+.footer {
+    text-align: center; font-size: 10px;
+    color: #262626; letter-spacing: 2px;
+    text-transform: uppercase; margin-top: 40px;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div style="display:flex;justify-content:center">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M3 21H21M3 18H21M6 18V10M10 18V10M14 18V10M18 18V10M12 3L21 8H3L12 3Z"
+              stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="logo-name">BuildiX</span>
+      </div>
     </div>
-    <span class="bx-logo-text">BUILDX</span>
+    <div class="tagline">Smart Construction Estimator</div>
+    <div class="badges">
+      <span class="badge">პროფესიონალური შეფასება</span>
+      <span class="badge">200+ პროექტი</span>
+      <span class="badge">24/7 კონსულტაცია</span>
+    </div>
   </div>
-</div>
-<div class="bx-tagline">Smart Construction Estimator</div>
-<div class="bx-trust">
-  <div class="bx-trust-item"><span class="bx-trust-dot"></span>პროფესიონალური შეფასება</div>
-  <div class="bx-trust-item"><span class="bx-trust-dot"></span>200+ განხორციელებული პროექტი</div>
-  <div class="bx-trust-item"><span class="bx-trust-dot"></span>24/7 კონსულტაცია</div>
-</div>
-""", unsafe_allow_html=True)
 
-# ════════════════════════════════════
-# STEP 1 — everything inside one container
-# ════════════════════════════════════
-with st.container(border=True):
-    st.markdown("""
-    <div class="bx-card-hdr">
-      <div class="bx-step">1</div>
-      <span class="bx-title">საკონტაქტო ინფორმაცია</span>
+  <!-- STEP 1 -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="step-n">1</div>
+      <span class="card-title">საკონტაქტო ინფორმაცია</span>
     </div>
-    """, unsafe_allow_html=True)
-
-    c1, c2 = st.columns(2)
-    with c1:
-        full_name = st.text_input("სახელი, გვარი", placeholder="ლაშა ჯაკობია")
-        phone     = st.text_input("ტელეფონი",      placeholder="+995 5XX XXX XXX")
-    with c2:
-        email    = st.text_input("Email", placeholder="example@email.com")
-        location = st.selectbox("მშენებლობის რაიონი",
-                                ["— აირჩიეთ რაიონი —","თბილისი","მცხეთა","თეთრიწყარო"])
-
-# validation (below the card)
-if email and not valid_email(email):
-    st.error("📧 ჩაწერეთ სწორი Email ფორმატი")
-if phone and not valid_phone(phone):
-    st.error("📞 ნომერი უნდა შეიცავდეს მხოლოდ ციფრებს")
-
-email_ok   = bool(email) and valid_email(email)
-phone_ok   = bool(phone) and valid_phone(phone) and len(re.sub(r"[\s+\-()+]","",phone)) >= 9
-contact_ok = bool(full_name) and email_ok and phone_ok and location != "— აირჩიეთ რაიონი —"
-
-# ════════════════════════════════════
-# STEP 2
-# ════════════════════════════════════
-if contact_ok:
-    with st.container(border=True):
-        st.markdown("""
-        <div class="bx-card-hdr">
-          <div class="bx-step">2</div>
-          <span class="bx-title">პროექტის პარამეტრები</span>
+    <div class="g2">
+      <div>
+        <div class="f">
+          <label>სახელი, გვარი</label>
+          <input id="iName" type="text" placeholder="ლაშა ჯაკობია" oninput="chk()">
         </div>
-        """, unsafe_allow_html=True)
-
-        col_a, col_b = st.columns(2)
-        with col_a:
-            st.markdown('<span class="bx-grp">ზოგადი</span>', unsafe_allow_html=True)
-            area      = st.number_input("ფართობი (კვ.მ)", min_value=1, step=1,
-                                        value=None, placeholder="მაგ: 150")
-            floors    = st.selectbox("სართულები", [1, 2, 3])
-            roof_type = st.selectbox("სახურავი", ["თუნუქი (Classic)","ბრტყელი გადახურვა"])
-        with col_b:
-            st.markdown('<span class="bx-grp">მასალები</span>', unsafe_allow_html=True)
-            _          = st.selectbox("ბეტონის მარკა",  ["B20 (M250)","B25 (M350)"])
-            wall_mat   = st.selectbox("კედლის მასალა",  ["პემზის ბლოკი","აგური","გაზბლოკი"])
-            window_tp  = st.selectbox("ფანჯარა",        ["სტანდარტული","პრემიუმ ალუმინი"])
-
-        # estimate
-        if area:
-            pc, pr, pf, pm = 280, 85, 120, 60
-            if floors > 1:                     pc = int(pc * 1.15)
-            if wall_mat  == "აგური":           pc += 45
-            if roof_type == "ბრტყელი გადახურვა": pr = 145
-            if window_tp == "პრემიუმ ალუმინი":  pf += 160
-
-            cc, cr, cf, cm = area*pc, area*pr, area*pf, area*pm
-            total = cc + cr + cf + cm
-
-            st.markdown(f"""
-            <div class="bx-result">
-              <div class="bx-rlabel">სავარაუდო ბიუჯეტი</div>
-              <div class="bx-ramt"><span class="bx-rcur">$</span>{total:,.0f}</div>
-              <div class="bx-bkdn">
-                <div class="bx-bitem"><div class="bx-blbl">კონსტრუქცია</div><div class="bx-bval">${cc:,.0f}</div></div>
-                <div class="bx-bitem"><div class="bx-blbl">გადახურვა</div><div class="bx-bval">${cr:,.0f}</div></div>
-                <div class="bx-bitem"><div class="bx-blbl">ფასადი</div><div class="bx-bval">${cf:,.0f}</div></div>
-                <div class="bx-bitem"><div class="bx-blbl">კომუნიკაციები</div><div class="bx-bval">${cm:,.0f}</div></div>
-              </div>
-            </div>
-            <div class="bx-info">
-              <div class="bx-idot"></div>
-              <span class="bx-ispan">შეფასება სავარაუდოა და შეიძლება განსხვავდებოდეს ადგილზე
-              დათვალიერების შემდეგ. ჩვენი სპეციალისტი დაგიკავშირდებათ კონსულტაციისთვის.</span>
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            st.markdown("""
-            <div class="bx-info">
-              <div class="bx-idot"></div>
-              <span class="bx-ispan">შეიყვანეთ ფართობი კვ.მ-ში სავარაუდო ბიუჯეტის სანახავად.</span>
-            </div>
-            """, unsafe_allow_html=True)
-
-    # ════════════════════════════════════
-    # STEP 3
-    # ════════════════════════════════════
-    with st.container(border=True):
-        st.markdown("""
-        <div class="bx-card-hdr">
-          <div class="bx-step">3</div>
-          <span class="bx-title">ნახაზის ატვირთვა
-            <span class="bx-opt">— სურვილისამებრ</span>
-          </span>
+        <div class="f">
+          <label>ტელეფონი</label>
+          <input id="iPhone" type="tel" placeholder="+995 5XX XXX XXX" oninput="chk()">
+          <div class="err-msg" id="ePhone">სწორი ნომერი შეიყვანეთ</div>
         </div>
-        """, unsafe_allow_html=True)
-
-        st.file_uploader("ატვირთეთ ნახაზი ან გეგმა AI ანალიზისთვის",
-                         type=["png","jpg","pdf"],
-                         label_visibility="visible")
-
-    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-
-    if st.button("→  მოთხოვნის გაგზავნა"):
-        st.success(f"✓  მადლობა, {full_name}! მოთხოვნა მიღებულია. მალე დაგიკავშირდებით.")
-
-else:
-    st.markdown("""
-    <div class="bx-info" style="margin-top:4px">
-      <div class="bx-idot"></div>
-      <span class="bx-ispan">გთხოვთ, შეავსოთ საკონტაქტო მონაცემები კალკულატორის გასააქტიურებლად.</span>
+      </div>
+      <div>
+        <div class="f">
+          <label>Email</label>
+          <input id="iEmail" type="email" placeholder="example@email.com" oninput="chk()">
+          <div class="err-msg" id="eEmail">სწორი Email ფორმატი</div>
+        </div>
+        <div class="f">
+          <label>მშენებლობის რაიონი</label>
+          <select id="iLoc" onchange="chk()">
+            <option value="">— აირჩიეთ რაიონი —</option>
+            <option>თბილისი</option>
+            <option>მცხეთა</option>
+            <option>თეთრიწყარო</option>
+          </select>
+        </div>
+      </div>
     </div>
-    """, unsafe_allow_html=True)
+  </div>
 
-st.markdown("<div style='height:32px'></div>", unsafe_allow_html=True)
-st.caption("© 2026 BuildX Construction Company")
+  <!-- LOCKED hint -->
+  <div class="locked" id="locked">
+    <span style="font-size:17px;opacity:.2">🔒</span>
+    <span>გთხოვთ, შეავსოთ საკონტაქტო მონაცემები კალკულატორის გასააქტიურებლად.</span>
+  </div>
+
+  <!-- STEPS 2 & 3 -->
+  <div class="s23" id="s23">
+
+    <!-- STEP 2 -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="step-n">2</div>
+        <span class="card-title">პროექტის პარამეტრები</span>
+      </div>
+      <div class="g2">
+        <div>
+          <span class="sec-lbl">ზოგადი</span>
+          <div class="f">
+            <label>ფართობი (კვ.მ)</label>
+            <input id="iArea" type="number" min="1" placeholder="მაგ: 150" oninput="calc()">
+          </div>
+          <div class="f">
+            <label>სართულები</label>
+            <select id="iFloors" onchange="calc()">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </div>
+          <div class="f">
+            <label>სახურავი</label>
+            <select id="iRoof" onchange="calc()">
+              <option value="tin">თუნუქი (Classic)</option>
+              <option value="flat">ბრტყელი გადახურვა</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <span class="sec-lbl">მასალები</span>
+          <div class="f">
+            <label>ბეტონის მარკა</label>
+            <select id="iConcrete">
+              <option>B20 (M250)</option>
+              <option>B25 (M350)</option>
+            </select>
+          </div>
+          <div class="f">
+            <label>კედლის მასალა</label>
+            <select id="iWall" onchange="calc()">
+              <option value="pemza">პემზის ბლოკი</option>
+              <option value="aguri">აგური</option>
+              <option value="gazbloki">გაზბლოკი</option>
+            </select>
+          </div>
+          <div class="f">
+            <label>ფანჯარა</label>
+            <select id="iWin" onchange="calc()">
+              <option value="std">სტანდარტული</option>
+              <option value="prem">პრემიუმ ალუმინი</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="hint" id="hintArea">
+        <span class="dot">↑</span>
+        <span>შეიყვანეთ ფართობი კვ.მ-ში სავარაუდო ბიუჯეტის სანახავად.</span>
+      </div>
+
+      <div class="result" id="result">
+        <div class="r-lbl">სავარაუდო ბიუჯეტი</div>
+        <div class="r-amt"><span class="r-cur">$</span><span id="aTotal">0</span></div>
+        <div class="bkdn">
+          <div class="bi"><div class="bi-lbl">კონსტრუქცია</div><div class="bi-val"><span class="bi-acc"></span><span id="aCC">—</span></div></div>
+          <div class="bi"><div class="bi-lbl">გადახურვა</div><div class="bi-val"><span class="bi-acc"></span><span id="aCR">—</span></div></div>
+          <div class="bi"><div class="bi-lbl">ფასადი</div><div class="bi-val"><span class="bi-acc"></span><span id="aCF">—</span></div></div>
+          <div class="bi"><div class="bi-lbl">კომუნიკაციები</div><div class="bi-val"><span class="bi-acc"></span><span id="aCM">—</span></div></div>
+        </div>
+        <div class="hint" style="margin-top:16px">
+          <span class="dot">ℹ</span>
+          <span>შეფასება სავარაუდოა და შეიძლება განსხვავდებოდეს ადგილზე დათვალიერების შემდეგ. ჩვენი სპეციალისტი დაგიკავშირდებათ კონსულტაციისთვის.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="step-n">3</div>
+        <span class="card-title">ნახაზის ატვირთვა<span class="card-opt">— სურვილისამებრ</span></span>
+      </div>
+      <div class="file-drop" id="fdrop">
+        <input type="file" id="fInput" accept=".png,.jpg,.jpeg,.pdf" onchange="onFile(this)">
+        <div class="fd-icon">📎</div>
+        <div class="fd-txt">ჩააგდეთ ფაილი ან დააჭირეთ ასატვირთად</div>
+        <div class="fd-hint">PNG · JPG · PDF</div>
+        <div class="fd-name" id="fdName"></div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="submit()">მოთხოვნის გაგზავნა &nbsp;→</button>
+    <div class="success" id="successBox"></div>
+
+  </div>
+
+  <div class="footer">© 2026 BuildiX Construction · All rights reserved</div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function fmt(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+
+function validEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function validPhone(p) {
+  const digits = p.replace(/[^\d]/g, '');
+  return digits.length >= 9 && /^\+?[\d\s\-()+]+$/.test(p);
+}
+
+function chk() {
+  const name  = $('iName').value.trim();
+  const phone = $('iPhone').value.trim();
+  const email = $('iEmail').value.trim();
+  const loc   = $('iLoc').value;
+
+  const phoneOk = !phone || validPhone(phone);
+  const emailOk = !email || validEmail(email);
+
+  $('ePhone').style.display = (phone && !phoneOk) ? 'block' : 'none';
+  $('eEmail').style.display = (email && !emailOk) ? 'block' : 'none';
+  $('iPhone').classList.toggle('err', !!(phone && !phoneOk));
+  $('iEmail').classList.toggle('err', !!(email && !emailOk));
+
+  const ok = name && validEmail(email) && validPhone(phone) && loc;
+
+  $('locked').style.display = ok ? 'none' : 'flex';
+  $('s23').classList.toggle('on', !!ok);
+  resize();
+}
+
+function calc() {
+  const area = parseFloat($('iArea').value);
+  const hint = $('hintArea');
+  const res  = $('result');
+
+  if (!area || area <= 0) {
+    hint.style.display = 'flex';
+    res.classList.remove('on');
+    resize();
+    return;
+  }
+
+  hint.style.display = 'none';
+
+  let pc = 280, pr = 85, pf = 120, pm = 60;
+  if (parseInt($('iFloors').value) > 1) pc = Math.round(pc * 1.15);
+  if ($('iWall').value  === 'aguri')     pc += 45;
+  if ($('iRoof').value  === 'flat')      pr  = 145;
+  if ($('iWin').value   === 'prem')      pf += 160;
+
+  const cc = area * pc, cr = area * pr, cf = area * pf, cm = area * pm;
+  const total = cc + cr + cf + cm;
+
+  $('aTotal').textContent = Math.round(total).toLocaleString('en-US');
+  $('aCC').textContent = fmt(cc);
+  $('aCR').textContent = fmt(cr);
+  $('aCF').textContent = fmt(cf);
+  $('aCM').textContent = fmt(cm);
+  res.classList.add('on');
+  resize();
+}
+
+function onFile(inp) {
+  if (inp.files && inp.files[0]) {
+    $('fdName').textContent = '✓  ' + inp.files[0].name;
+    $('fdName').style.display = 'block';
+  }
+}
+
+const fdrop = $('fdrop');
+fdrop.addEventListener('dragover',  e => { e.preventDefault(); fdrop.classList.add('over'); });
+fdrop.addEventListener('dragleave', () => fdrop.classList.remove('over'));
+fdrop.addEventListener('drop', e => {
+  e.preventDefault(); fdrop.classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (f) { $('fdName').textContent = '✓  ' + f.name; $('fdName').style.display = 'block'; }
+});
+
+function submit() {
+  const name = $('iName').value.trim();
+  const box  = $('successBox');
+  box.textContent = '✓  მადლობა, ' + name + '! მოთხოვნა მიღებულია. მალე დაგიკავშირდებით.';
+  box.classList.add('on');
+  box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  resize();
+}
+
+// Tell Streamlit how tall this iframe needs to be
+function resize() {
+  const h = document.body.scrollHeight + 30;
+  window.parent.postMessage({ type: 'streamlit:setFrameHeight', height: h }, '*');
+}
+
+window.addEventListener('load', () => { chk(); resize(); });
+window.addEventListener('resize', resize);
+</script>
+</body>
+</html>"""
+
+components.html(HTML, height=700, scrolling=False)
